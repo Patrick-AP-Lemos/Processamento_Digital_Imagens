@@ -1,0 +1,35 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "ProcessaImgensTeste",
+            "request": "launch",
+            "mainClass": "ProcessaImgensTeste",
+            "projectName": "ProcessamentoImagens_d89dad07"
+        },
+        {
+            "type": "java",
+            "name": "ProcessamentoImagens",
+            "request": "launch",
+            "mainClass": "ProcessamentoImagens",
+            "projectName": "ProcessamentoImagens_d89dad07"
+        },
+        {
+            "type": "java",
+            "name": "ProcessamentoImagens",
+            "request": "launch",
+            "mainClass": "ProcessamentoImagens",
+            "projectName": "ProcessamentoImagens_f29d7654"
+        },
+        {
+            "type": "java",
+            "name": "Current File",
+            "request": "launch",
+            "mainClass": "${file}"
+        }
+    ]
+}

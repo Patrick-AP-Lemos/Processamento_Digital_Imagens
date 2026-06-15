@@ -6,6 +6,27 @@
     "configurations": [
         {
             "type": "java",
+            "name": "teste",
+            "request": "launch",
+            "mainClass": "teste",
+            "projectName": "ProcessamentoImagens_406432b3"
+        },
+        {
+            "type": "java",
+            "name": "ProcessamentoImagens_refatorado",
+            "request": "launch",
+            "mainClass": "ProcessamentoImagens_refatorado",
+            "projectName": "ProcessamentoImagens_406432b3"
+        },
+        {
+            "type": "java",
+            "name": "ProcessamentoImagensTestes",
+            "request": "launch",
+            "mainClass": "ProcessamentoImagensTestes",
+            "projectName": "ProcessamentoImagens_406432b3"
+        },
+        {
+            "type": "java",
             "name": "ProcessamentoImagens",
             "request": "launch",
             "mainClass": "ProcessamentoImagens",

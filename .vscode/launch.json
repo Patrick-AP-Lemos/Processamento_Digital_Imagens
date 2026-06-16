@@ -6,6 +6,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "ProcessamentoImagens",
+            "request": "launch",
+            "mainClass": "ProcessamentoImagens",
+            "projectName": "ProcessamentoImagens_8dca8ef4"
+        },
+        {
+            "type": "java",
             "name": "teste",
             "request": "launch",
             "mainClass": "teste",

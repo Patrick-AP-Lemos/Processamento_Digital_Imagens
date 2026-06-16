@@ -8,6 +8,7 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.text.html.HTML.Tag;
 
 public class ProcessamentoImagens extends JFrame {
 
@@ -56,6 +57,7 @@ public class ProcessamentoImagens extends JFrame {
         setTitle("PDI  ·  Sistema de Processamento Digital de Imagens");
         setSize(1280, 760);
         setMinimumSize(new Dimension(960, 600));
+        setExtendedState(JFrame.MAXIMIZED_BOTH);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout(0, 0));
@@ -354,9 +356,40 @@ public class ProcessamentoImagens extends JFrame {
 
     private void exibirImagem(JLabel label, BufferedImage img, JLabel lblDim) {
         if (img == null) return;
-        label.setIcon(new ImageIcon(img));
+
+        //Descobre o tamanho do painel onde a imagem vai ficar (o JViewport do ScrollPane)
+        int telaW = label.getParent().getWidth();
+        int telaH = label.getParent().getHeight();
+
+        // (Proteção) Se a janela ainda não tiver tamanho na primeira execução, usa um padrão
+        if (telaW <= 0) telaW = 600;
+        if (telaH <= 0) telaH = 600;
+
+        int imgW = img.getWidth();
+        int imgH = img.getHeight();
+
+        //Calcula a proporção matemática para caber na tela sem distorcer (mantém o Aspect Ratio)
+        // O "- 10" é uma margem de segurança para garantir que a barra de rolagem não apareça
+        double proporcao = Math.min((double) (telaW - 10) / imgW, (double) (telaH - 10) / imgH);
+
+        //Se a imagem for MAIOR que a tela, nós encolhemos apenas a visualização dela
+        if (proporcao < 1.0) {
+            int novoW = (int) (imgW * proporcao);
+            int novoH = (int) (imgH * proporcao);
+            
+            // O Image.SCALE_SMOOTH aplica um anti-aliasing para a miniatura ficar bem bonita e nítida
+            Image imagemDisplay = img.getScaledInstance(novoW, novoH, Image.SCALE_SMOOTH);
+            label.setIcon(new ImageIcon(imagemDisplay));
+        } else {
+            // Se a imagem já for menor que a tela, exibe no tamanho original mesmo
+            label.setIcon(new ImageIcon(img));
+        }
+
         label.setText("");
+        
+        // A etiqueta de texto no cabeçalho continuará mostrando as dimensões reais (ex: 4000x3000)
         if (lblDim != null) lblDim.setText(formatarDimensoes(img));
+        
         label.revalidate();
         label.repaint();
     }
@@ -554,8 +587,8 @@ public class ProcessamentoImagens extends JFrame {
                 btnHistorico.setVisible(false);
                 historicoOriginal.clear();
                 definirStatus("Imagem carregada: " + fc.getSelectedFile().getName(), STATUS_OK);
-                pack();
-                setSize(1280, 760);
+                //pack();
+                //setSize(1280, 760);
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(this, "Erro ao abrir: " + ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
             }
@@ -1426,7 +1459,7 @@ public class ProcessamentoImagens extends JFrame {
     // ══════════════════════════════════════════════════════════════════════════
     //  DESAFIOS
     // ══════════════════════════════════════════════════════════════════════════
-    private void ResolverDesafio(BufferedImage img, String exercicio) {
+    private void ResolverDesafio(BufferedImage img, String exercicio) {//TODO 
         if (img == null) return;
         
         try {
@@ -1442,12 +1475,13 @@ public class ProcessamentoImagens extends JFrame {
         }
     }
 
-    //Exercício 1: Relógio Analógico
+    
+    //Exercício 1: Relógio Analógico //TODO
     private void resolverRelogio(BufferedImage img) {
         int w = img.getWidth();
         int h = img.getHeight();
 
-        // 1. Binarização: pegar apenas pixels escuros (assumindo relógio escuro em fundo claro)
+        //Binarização para pegar apenas pixels escuros
         BufferedImage cinza = grayCopy(img);
         boolean[][] isPreto = new boolean[w][h];
         long sumX = 0, sumY = 0;
@@ -1466,7 +1500,7 @@ public class ProcessamentoImagens extends JFrame {
 
         if (countPreto == 0) throw new RuntimeException("Nenhum pixel escuro encontrado.");
 
-        // 2. Centro de massa (eixo do relógio)
+        //Centro de massa (eixo do relógio)
         int cx = (int) (sumX / countPreto);
         int cy = (int) (sumY / countPreto);
 
@@ -1487,7 +1521,7 @@ public class ProcessamentoImagens extends JFrame {
             }
         }
 
-        // 3. Isolar os ponteiros (Busca em Largura - BFS)
+        //Isola os ponteiros (Busca em Largura - BFS)
         java.util.List<Point> ponteiros = new java.util.ArrayList<>();
         boolean[][] visitado = new boolean[w][h];
         java.util.Queue<Point> fila = new java.util.LinkedList<>();
@@ -1513,7 +1547,7 @@ public class ProcessamentoImagens extends JFrame {
             }
         }
 
-        // 4. Encontrar a ponta do ponteiro dos MINUTOS (maior distância)
+        //Encontra a ponta do ponteiro dos MINUTOS (maior distância)
         Point pontaMinuto = cx == 0 ? new Point(0,0) : new Point(cx, cy);
         double maxDistMin = -1;
 
@@ -1528,14 +1562,14 @@ public class ProcessamentoImagens extends JFrame {
         // Calcula o ângulo do ponteiro dos minutos
         double anguloMinutoRad = Math.atan2(pontaMinuto.y - cy, pontaMinuto.x - cx);
 
-        // 5. Encontrar a ponta do ponteiro das HORAS (segunda maior distância, ignorando a reta do minuto)
+        //Encontra a ponta do ponteiro das HORAS (segunda maior distância)
         Point pontaHora = new Point(cx, cy);
         double maxDistHora = -1;
 
         for (Point p : ponteiros) {
             double anguloAtual = Math.atan2(p.y - cy, p.x - cx);
             double diffAngulo = Math.abs(anguloAtual - anguloMinutoRad);
-            // Corrige a diferença circular de ângulos (ex: -179 e 180 são próximos)
+            // Corrige a diferença de ângulos
             if (diffAngulo > Math.PI) diffAngulo = 2 * Math.PI - diffAngulo;
 
             // Só considera pixels que estejam a pelo menos 20 graus de diferença do minuto
@@ -1550,24 +1584,18 @@ public class ProcessamentoImagens extends JFrame {
         
         double anguloHoraRad = Math.atan2(pontaHora.y - cy, pontaHora.x - cx);
 
-        // 6. Converter ângulos matemáticos para formato de relógio
-        // Em Java (e na imagem), o Y cresce para baixo.
-        // O ângulo 0 (direita) é 3h. Subtraímos 90 para alinhar o topo (12h) no 0.
-        // Adicionamos 360 para evitar números negativos e usamos o módulo.
+        //Converte ângulos matemáticos para formato de relógio
         double angHoraDeg = (Math.toDegrees(anguloHoraRad) + 90 + 360) % 360;
         double angMinDeg = (Math.toDegrees(anguloMinutoRad) + 90 + 360) % 360;
 
-        // Minutos são os mais simples. Cada marca de minuto é 6 graus (360/60)
+        // Minutos
         int minutos = (int) Math.round(angMinDeg / 6.0) % 60;
 
-        // Horas precisam de cuidado especial. Cada hora tem 30 graus (360/12).
-        // A hora base é puramente a divisão do ângulo por 30 arredondada para BAIXO.
+        // Horas
         int horas = (int) Math.floor(angHoraDeg / 30.0);
 
-        // Como o ponteiro das horas se move gradualmente à medida que os minutos passam,
-        // às vezes um ângulo pode estar muito próximo do próximo número (ex: 10:55 estaria colado no 11).
-        // Como já usamos Math.floor, pegaremos a hora "anterior".
-        if (horas == 0) horas = 12; // Ajuste para 12h (ângulo entre 0 e 29)
+        // Hora "anterior".
+        if (horas == 0) horas = 12;
 
         String horario = String.format("%02d:%02d", horas, minutos);
 
@@ -1577,7 +1605,7 @@ public class ProcessamentoImagens extends JFrame {
             JOptionPane.INFORMATION_MESSAGE);
     }
 
-    //Exercício 2: Contagem por Cores
+    //Exercício 2: Contagem por Cores //TODO
     private void resolverContagemCores(BufferedImage img) {
         int w = img.getWidth();
         int h = img.getHeight();
@@ -1592,13 +1620,13 @@ public class ProcessamentoImagens extends JFrame {
                 Color c = new Color(img.getRGB(x, y), true);
                 String nomeCor = classificarCor(c);
                 
-                // Se o pixel principal for fundo (Branco) ou sombra (Preto), ignoramos
+                // Se o pixel principal for fundo (Branco) ou sombra (Preto) ele é ignorado
                 if (c.getAlpha() == 0 || nomeCor.equals("Branco") || nomeCor.equals("Preto")) {
                     visitado[x][y] = true;
                     continue;
                 }
 
-                // Inicia a varredura (Flood Fill) para medir o tamanho do objeto
+                // Inicia a varredura para medir o tamanho do objeto, por Flood Fill
                 int tamanhoObjeto = 0;
                 java.util.Queue<Point> fila = new java.util.LinkedList<>();
                 fila.add(new Point(x, y));
@@ -1626,17 +1654,11 @@ public class ProcessamentoImagens extends JFrame {
                     }
                 }
 
-                // FILTRO DE RUÍDO: Só contabiliza o objeto se ele for grande o suficiente (ex: > 15 pixels)
-                // Isso elimina os artefatos de compressão JPEG e os "fantasmas" amarelos
+                //Filtro de ruido 
                 if (tamanhoObjeto > 15) {
                     contagem.put(nomeCor, contagem.getOrDefault(nomeCor, 0) + 1);
                 }
             }
-        }
-
-        if (contagem.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Nenhum objeto colorido válido encontrado.", "Resultado", JOptionPane.INFORMATION_MESSAGE);
-            return;
         }
 
         StringBuilder resultado = new StringBuilder("Objetos encontrados por cor:\n\n");
@@ -1657,9 +1679,8 @@ public class ProcessamentoImagens extends JFrame {
             {"Branco", 255, 255, 255},
             {"Preto", 0, 0, 0},
             {"Vermelho", 255, 0, 0},
-            {"Azul", 0, 0, 255},
-            {"Verde", 0, 128, 0},
             {"Verde", 0, 255, 0},
+            {"Azul", 0, 0, 255},
             {"Amarelo", 255, 255, 0}
         };
 
@@ -1683,7 +1704,7 @@ public class ProcessamentoImagens extends JFrame {
         return corMaisProxima;
     }
 
-    //Exercício 3: Letras do Alfabeto
+    //Exercício 3: Letras do Alfabeto //TODO
     private void resolverLetras(BufferedImage img) {
         int w = img.getWidth();
         int h = img.getHeight();
@@ -1692,7 +1713,7 @@ public class ProcessamentoImagens extends JFrame {
         boolean[][] visitado = new boolean[w][h];
         boolean[][] isPreto = new boolean[w][h];
         
-        // 1. Binarização (Limiar = 128)
+        // Binarização (Limiar = 128)
         for (int y = 0; y < h; y++) {
             for (int x = 0; x < w; x++) {
                 if (new Color(cinza.getRGB(x, y)).getRed() < 128) {
@@ -1704,7 +1725,7 @@ public class ProcessamentoImagens extends JFrame {
         // TreeSet organiza automaticamente em ordem alfabética e impede letras duplicadas!
         java.util.Set<String> letrasEncontradas = new java.util.TreeSet<>(); 
 
-        // 2. Encontrar e isolar cada letra na imagem
+        //Encontra e isola cada letra na imagem
         for (int y = 0; y < h; y++) {
             for (int x = 0; x < w; x++) {
                 if (isPreto[x][y] && !visitado[x][y]) {
@@ -1716,7 +1737,7 @@ public class ProcessamentoImagens extends JFrame {
                     fila.add(new Point(x, y));
                     visitado[x][y] = true;
 
-                    // Flood Fill para achar os limites (Bounding Box) da letra
+                    // Acha os limites das letras, por Flood Fill
                     while (!fila.isEmpty()) {
                         Point p = fila.poll();
                         tamanhoObjeto++;
@@ -1739,7 +1760,7 @@ public class ProcessamentoImagens extends JFrame {
                         }
                     }
 
-                    // 3. Filtro de Ruído: ignora pontinhos soltos
+                    //Filtro de Ruído, ignora pontinhos soltos
                     if (tamanhoObjeto > 30) {
                         int largura = maxX - minX + 1;
                         int altura = maxY - minY + 1;
@@ -1752,7 +1773,7 @@ public class ProcessamentoImagens extends JFrame {
                             }
                         }
                         
-                        // 4. Manda a matriz recortada para reconhecimento
+                        //Manda a matriz recortada para reconhecimento
                         String letra = classificarLetraZoning(bbox);
                         letrasEncontradas.add(letra);
                     }
@@ -1794,8 +1815,7 @@ public class ProcessamentoImagens extends JFrame {
             grid[i] = Math.min(1.0, grid[i] / zoneArea);
         }
 
-        // Perfis Matemáticos das Letras (Mapeamento Heurístico da Grade 3x3)
-        // Valores de 0.0 (totalmente vazio) a 1.0 (totalmente preenchido)
+        // Perfis Matemáticos das Letras
         Object[][] perfis = {
             {"A", new double[]{0.2, 0.9, 0.2,   0.8, 0.6, 0.8,   0.9, 0.2, 0.9}},
             {"B", new double[]{0.9, 0.8, 0.6,   0.9, 0.8, 0.6,   0.9, 0.8, 0.6}},
@@ -1828,13 +1848,13 @@ public class ProcessamentoImagens extends JFrame {
         return melhorLetra;
     }
 
-    //Exercício 4: Placas de Trânsito
-   private void resolverPlacas(BufferedImage img) {
+    //Exercício 4: Placas de Trânsito //TODO
+    private void resolverPlacas(BufferedImage img) {
         int w = img.getWidth();
         int h = img.getHeight();
         boolean[][] visitado = new boolean[w][h];
         
-        // 1. Usar um Set para evitar múltiplas detecções da mesma placa (Filtra os "Pares" duplicados)
+        //TreeSet para evitar múltiplas detecções da mesma placa (Filtra os vários "Pares")
         java.util.Set<String> placasEncontradas = new java.util.LinkedHashSet<>();
 
         for (int y = 0; y < h; y++) {
@@ -1884,7 +1904,7 @@ public class ProcessamentoImagens extends JFrame {
                         
                         int pixelsPretos = 0;
                         int vermelhoNoCentro = 0;
-                        long somaXPretos = 0; // Para calcular o centro de gravidade do preto
+                        //long somaXPretos = 0; // Para calcular o centro de gravidade do preto
                         
                         // Margem para olhar o "miolo" (30%)
                         int margemX = (int)(largura * 0.3);
@@ -1919,21 +1939,20 @@ public class ProcessamentoImagens extends JFrame {
                             }
                         }
 
-                        // 2. Classificação Lógica
+                        //Classificação Lógica
                         String tipoPlaca;
                         
                         if (pixelsPretos < 20) {
                             tipoPlaca = "Pare";
                         } else {
                             if (vermelhoNoCentro > 30) {
-                                // Tem faixa vermelha cortando! Pode ser Seta ou 'E'.
+                                // Se tem faixa vermelha cortando pode ser Seta ou 'E'.
                                 
-                                // Calcula a largura e a altura APENAS da parte preta
+                                // Calcula a largura e a altura da parte preta
                                 int larguraPreto = maxPx - minPx;
                                 int alturaPreto = maxPy - minPy;
                                 
-                                // A letra 'E' é gordinha (a largura passa tranquilamente de 40% da altura).
-                                // A Seta é bem magrinha e alta.
+                                //Para tentar pegar a diferença entre a letra "E" e a seta
                                 if (larguraPreto > alturaPreto * 0.4) {
                                     tipoPlaca = "Proibido estacionar";
                                 } else {
@@ -1959,12 +1978,12 @@ public class ProcessamentoImagens extends JFrame {
         }
     }
 
-    //Exercício 5: Gráfico de Barras
+    //Exercício 5: Gráfico de Barras //TODO
     private void resolverGrafico(BufferedImage img) {
         int w = img.getWidth();
         int h = img.getHeight();
         
-        // ─── PASSO 1: ISOLAR AS BARRAS COLORIDAS ───
+        //Isola as barras coloridas
         boolean[][] visitadoBarras = new boolean[w][h];
         java.util.List<Rectangle> barras = new java.util.ArrayList<>();
 
@@ -1979,8 +1998,6 @@ public class ProcessamentoImagens extends JFrame {
                 int maxC = Math.max(r, Math.max(g, b));
                 int minC = Math.min(r, Math.min(g, b));
 
-                // É colorido se a diferença entre a cor mais forte e a mais fraca for grande.
-                // Isso ignora perfeitamente Branco, Preto e as Linhas Cinzas!
                 if (maxC - minC > 30 && maxC > 100) {
                     int minX = x, maxX = x, minY = y, maxY = y;
                     int tamanhoObjeto = 0;
@@ -2022,13 +2039,13 @@ public class ProcessamentoImagens extends JFrame {
             }
         }
 
-        // ─── PASSO 2: ISOLAR E LER OS NÚMEROS DO EIXO Y ───
+        //Isola e tenta lê os números do eixo Y
         boolean[][] visitadoTexto = new boolean[w][h];
         
         class Digito { String val; int cx, cy; Digito(String v, int x, int y){val=v; cx=x; cy=y;} }
         java.util.List<Digito> digitos = new java.util.ArrayList<>();
 
-        // Procuramos texto apenas na parte esquerda da imagem (x < w/3)
+        // Procuramos texto apenas na parte esquerda da imagem
         for (int y = 0; y < h; y++) {
             for (int x = 0; x < w / 3; x++) {
                 if (visitadoTexto[x][y]) continue;
@@ -2076,7 +2093,6 @@ public class ProcessamentoImagens extends JFrame {
             }
         }
 
-        // ─── PASSO 3: AGRUPAR DÍGITOS PARA FORMAR OS NÚMEROS (Ex: "2" e "0" -> "20") ───
         class EixoY { int valor, cy; EixoY(int v, int y){valor=v; cy=y;} }
         java.util.List<EixoY> labelsEixo = new java.util.ArrayList<>();
         boolean[] agrupado = new boolean[digitos.size()];
@@ -2109,7 +2125,7 @@ public class ProcessamentoImagens extends JFrame {
             } catch (Exception ignored) {}
         }
 
-        // ─── PASSO 4: CALCULAR A ESCALA MATEMÁTICA E OS VALORES ───
+        //Calcula os valores
         if (barras.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Nenhuma barra encontrada.", "Erro", JOptionPane.WARNING_MESSAGE);
             return;
@@ -2121,7 +2137,7 @@ public class ProcessamentoImagens extends JFrame {
             // Se o OCR falhar e não achar números, devolve pixels como fallback
             for (Rectangle b : barras) valoresFinais.add(b.height);
         } else {
-            // Encontra o maior número do eixo (Ex: 20)
+            // Encontra o maior número do eixo
             EixoY maxLabel = labelsEixo.get(0);
             for (EixoY lbl : labelsEixo) {
                 if (lbl.valor > maxLabel.valor) maxLabel = lbl;
@@ -2143,7 +2159,7 @@ public class ProcessamentoImagens extends JFrame {
             }
         }
 
-        // ─── PASSO 5: EXIBIR O PADRÃO EXATO ───
+        //Exibe o padrão dos eixos
         int max = java.util.Collections.max(valoresFinais);
         int min = java.util.Collections.min(valoresFinais);
 
@@ -2168,7 +2184,7 @@ public class ProcessamentoImagens extends JFrame {
     private String classificarDigitoZoning(boolean[][] bbox) {
         int w = bbox.length;
         int h = bbox[0].length;
-        if (w < 3 || h < 5) return ""; // Ignora pontinhos de ruído
+        if (w < 3 || h < 5) return ""; // Ignora ruído
 
         double[] grid = new double[9];
         for (int y = 0; y < h; y++) {

@@ -1,23 +1,27 @@
-<<<<<<< HEAD
-## Getting Started
+# Processamento Digital de Imagens
 
-Welcome to the VS Code Java world. Here is a guideline to help you get started to write Java code in Visual Studio Code.
+Projeto desenvolvido na disciplina de Processamento Digital de Imagens
+do curso de Ciência da Computação.
 
-## Folder Structure
+## Tecnologias
 
-The workspace contains two folders by default, where:
+- Java
+- Processamento de imagens
 
-- `src`: the folder to maintain sources
-- `lib`: the folder to maintain dependencies
+## Funcionalidades
 
-Meanwhile, the compiled output files will be generated in the `bin` folder by default.
+Descreva aqui as principais funcionalidades implementadas.
 
-> If you want to customize the folder structure, open `.vscode/settings.json` and update the related settings there.
+## Como executar
 
-## Dependency Management
+1. Instale o Java.
+2. Abra o projeto no VS Code ou Eclipse.
+3. Execute a classe principal.
 
-The `JAVA PROJECTS` view allows you to manage your dependencies. More details can be found [here](https://github.com/microsoft/vscode-java-dependency#manage-dependencies).
-=======
-# Processamento_Digital_Imagens
-Repositório do trabalho da cadeira de Processamento Digital de imagens
->>>>>>> e0aeae870491da068c3bdcfe0093a72a822bc1b7
+## Aprendizados
+
+Descreva os principais conceitos estudados e aplicados.
+
+## Status
+
+Projeto acadêmico concluído.

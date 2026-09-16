@@ -1,16 +1,30 @@
-# Processamento Digital de Imagens
+# Processamento Digital de Imagens - Image Processing Studio
 
 Projeto desenvolvido na disciplina de Processamento Digital de Imagens
 do curso de Ciência da Computação.
 
-## Tecnologias
+Aplicação desktop desenvolvida em Java para processamento digital de imagens.
 
-- Java
-- Processamento de imagens
+## Demonstração
+
+![Comparação entre imagem original e transformada](docs/comparacao-original-transformada.png)
 
 ## Funcionalidades
 
-Descreva aqui as principais funcionalidades implementadas.
+- Abertura de imagens;
+- Visualização da imagem original;
+- Aplicação de transformações;
+- Comparação entre imagem original e resultado;
+- Histórico de alterações;
+- Restauração da imagem original.
+
+## Tecnologias
+
+- Java
+- Swing
+- AWT
+- BufferedImage
+- ImageIO
 
 ## Como executar
 
@@ -18,9 +32,24 @@ Descreva aqui as principais funcionalidades implementadas.
 2. Abra o projeto no VS Code ou Eclipse.
 3. Execute a classe principal.
 
+```bash
+javac -d bin src/ProcessamentoImagens.java
+java -cp bin ProcessamentoImagens
+
+## Estrutura
+
+src/
+  ProcessamentoImagens.java
+docs/
+  tela-inicial.png
+  comparacao-original-transformada.png
+  aplicacao-filtro.png
+  demontracao-historico.png
+
 ## Aprendizados
 
-Descreva os principais conceitos estudados e aplicados.
+O projeto permitiu praticar interfaces gráficas com Swing, manipulação de imagens,
+operações sobre pixels e organização de um fluxo de processamento visual.
 
 ## Status
 

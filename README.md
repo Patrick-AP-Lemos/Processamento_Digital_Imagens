@@ -32,10 +32,6 @@ Aplicação desktop desenvolvida em Java para processamento digital de imagens.
 2. Abra o projeto no VS Code ou Eclipse.
 3. Execute a classe principal.
 
-```bash
-javac -d bin src/ProcessamentoImagens.java
-java -cp bin ProcessamentoImagens
-
 ## Estrutura
 
 src/
